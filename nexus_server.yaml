@@ -1,0 +1,6 @@
+---
+- name: Ansible nexus server configuration
+  hosts: nexus_servers
+  become: yes
+  roles:
+        - nexus

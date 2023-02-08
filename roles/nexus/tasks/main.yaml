@@ -1,0 +1,65 @@
+---
+- name: Update and upgrade apt packages
+  apt:
+          upgrade: yes
+          update_cache: yes
+
+- name: Install Python 3
+  apt:
+          name: python3
+          state: present
+
+- name: Verify Python 3 installation
+  command: python3 --version
+  register: python3_version
+
+- name: Display Python 3 version
+  debug:
+          var: python3_version.stdout_lines   
+        
+- name: Install Java
+  apt:
+          name: openjdk-8-jre
+          state: present 
+
+- name: Create nexus user
+  user:
+          name: nexus
+          shell: /bin/bash
+          state: present
+
+- name: Download Nexus OSS
+  get_url:
+          url: https://download.sonatype.com/nexus/3/latest-unix.tar.gz
+          dest: /tmp
+
+- name: Extract Nexus archive
+  unarchive:
+          src: /tmp/nexus-3.47.0-01-unix.tar.gz
+          dest: /opt
+          remote_src: yes
+
+- name: Move Nexus to /opt/nexus
+  file:
+          src: /opt/nexus-3.47.0-01
+          dest: /opt/nexus
+          state: link
+          force: yes      
+    
+- name: Set ownership and permissions
+  file:
+          path: /opt/nexus
+          owner: nexus
+          group: nexus
+          mode: '0755'
+          
+- name: Install acl
+  apt:
+        state: latest
+        update_cache: true
+        pkg: acl
+
+- name: Start Nexus service
+  command: /opt/nexus/bin/nexus start
+  become: true
+  become_user: nexus 

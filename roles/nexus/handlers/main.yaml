@@ -1,0 +1,5 @@
+---
+- name: Start Nexus service
+  command: /opt/nexus/bin/nexus start
+  become: true
+  become_user: nexus 
