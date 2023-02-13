@@ -1,0 +1,8 @@
+---
+- name: Python web app
+  hosts: app_servers
+  roles:
+    - agama
+    - uwsgi
+    - nginx
+  become: yes
