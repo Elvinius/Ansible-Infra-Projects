@@ -1,0 +1,71 @@
+- name: Run the equivalent of "apt-get update" as a separate step
+  apt:
+    update_cache: yes
+
+- name: Install necessary packages 
+  apt: 
+    pkg:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - software-properties-common
+    state: latest
+
+# - name: Add the GPG key
+#   uri:
+#     url: 'https://download.docker.com/linux/ubuntu/gpg'
+#     method: GET
+#   register: result
+
+- name: Add an Apt signing key for the official Docker repo
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Add the Docker repo to the APT sources
+  apt_repository:
+    repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
+    state: present
+
+- name: Install Docker
+  apt:
+    name: docker-ce, python3-docker
+    state: present
+# - name: Add your username to the docker group
+#   shell: sudo usermod -aG docker ${USER}
+
+- name: Create a directory for the Dockerfile
+  file:
+    path: /home/love
+    state: directory
+    mode: '0755'
+
+- name: Copy Dockerfile to the machine
+  copy:
+    src: "./files/Dockerfile"
+    dest: "/home/love/"
+
+- name: Copy nginx config file to the machine
+  copy:
+    src: "./files/nginx.conf"
+    dest: "/home/love/"
+
+- name: Copy index.html file to the machine
+  copy:
+    src: "./files/index.html"
+    dest: "/home/love/"
+
+- name: create Docker image 
+  docker_image:
+    name: love_app
+    build:
+      path: "/home/love/"
+    source: build
+    state: present
+
+- name: Nginx Love app container
+  docker_container:
+    name: nginx_love_app
+    image: love_app
+    ports:
+      - 9000:9000

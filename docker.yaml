@@ -1,0 +1,6 @@
+---
+- name: Install Docker at the Ubuntu EC2 server
+  hosts: web_servers
+  become: yes
+  roles: 
+    - docker
