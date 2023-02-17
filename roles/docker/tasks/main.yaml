@@ -45,15 +45,23 @@
     src: "./files/Dockerfile"
     dest: "/home/love/"
 
+
 - name: Copy nginx config file to the machine
   copy:
     src: "./files/nginx.conf"
     dest: "/home/love/"
 
-- name: Copy index.html file to the machine
+- name: copy all app files in myconf/
   copy:
-    src: "./files/index.html"
+    src: "{{ item }}"
     dest: "/home/love/"
+  with_fileglob:
+    - "./app/*"
+# - name: Copy app files to the machine
+#   copy:
+#     src: "./app/"
+#     dest: "/home/love/"
+
 
 - name: create Docker image 
   docker_image:
